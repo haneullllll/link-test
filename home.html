@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>청년 복지 정보 포털</title>
+
+  <link rel="stylesheet" href="공통.css" />
+
+
+
+  <style>
+
+    .card p {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  /* 화면 너비가 1100px 이하일 때 적용 */
+  @media (max-width: 1100px) {
+    /* 양쪽 곰두리 이미지를 숨겨서 공간 확보 */
+    .side-img.left, .side-img.right {
+      display: none;
+    }
+  }
+
+  /* 화면 너비가 768px 이하일 때 적용 (태블릿/모바일) */
+  @media (max-width: 768px) {
+    /* 헤더와 카드 섹션의 좌우 여백을 줄여서 콘텐츠를 더 넓게 표시 */
+    .had {
+      padding: 40px 20px;
+    }
+    .sections {
+      padding: 20px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+  <!-- 네비 메뉴 -->
+  <nav>
+    <div class="nav-container">
+      <div class="logo">
+        <a href = "home.html">
+            <img src = "곰두리_16.png" alt = "로고" class = "logo-img">
+        </a>
+        </div>
+      <div class="menu">
+        <a href= "home.html">홈</a>
+        <a href="지역별 복지.html">지역별 복지</a>
+        <a href="청년창업.html">청년창업</a>
+        <a href="K-패스.html">K-패스</a>
+      </div>
+      <button class="hamburger-menu">
+        <span class="line"></span>
+        <span class="line"></span>
+        <span class="line"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- 헤더 영역, 초기 안내사항 js opacity기능 -->
+  <header class = "had">
+    <h1>💡 복지 사각지대에서 벗어나자</h1>
+    <p>복지 사각지대에 놓이지 않도록 지금 바로 확인해보세요</p>
+  </header>
+
+
+  <div class="wrapper">
+  <div class="side-img left">
+    <img src="곰두리home_좌우반전.png" alt="왼쪽 이미지" />
+  </div>
+
+  <!-- 카드 섹션 -->
+  <div class="sections">
+    <div class="card" id="region" data-url="지역별 복지.html">
+      <h2>🧑‍🎓 지역별 청년 복지</h2>
+      <p>서울, 경기, 춘천 거주 청년이 신청할 수 있는 지원 제도를 안내합니다.</p>
+      <button class="reveal-btn" onclick="toggleInfo(this)">더보기</button>
+      <div class="extra-info">
+        <p>✔ (서울) 청년수당 월 50만<br/>✔ (경기) 청년기본소득 연 100만원 지급 <br/>✔ (강원) 청년 디딤돌 적금 </p>
+      </div>
+
+    </div>
+
+      <div class="card" data-url="청년창업.html">
+      <h2>🕴 청년창업지원도우미</h2>
+      <p>청년 창업과 관련된 주요 내용들을 소개합니다!</p>
+      <button class="reveal-btn" onclick="toggleInfo(this)">더보기</button>
+      <div class="extra-info">
+       <p>✔예비 창업자<br/>✔초기 창업자(3년 이내)<br/>✔중기 창업자(3년~7년)</p>
+       </div>
+    </div>
+
+
+    <div class="card" data-url="K-패스.html">
+      <h2>🚆 K패스 청년</h2>
+      <p>만 19세 ~ 39세 청년이면 대중교통 할인받아요!</p>
+      <button class="reveal-btn" onclick="toggleInfo(this)">더보기</button>
+      <div class="extra-info">
+        <p>✔대중교통비 **30%** 환급 (만 19~39세)<br/>✔ 월 15회 이상 이용 시 혜택 적용<br/>✔ 전국 버스, 지하철, GTX 포함</p>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="side-img right">
+    <img src="곰두리_16.png" alt="오른쪽 이미지" />
+  </div>
+</div>
+
+  <!-- 푸터 -->
+  <footer>
+    Copyright © 2025. All rights reserved.
+  </footer>
+
+  <!-- 스크립트 -->
+   <script src = "공통.js"></script>
+  <script>
+    
+    function toggleInfo(button) { //버튼이 눌리면 실행되는 함수 현 "더보기"
+      const info = button.nextElementSibling; // 더보기 아래의 extra-info를 가리킴 nextElementSibling js내장객체
+      if (info.style.display === "block") { //값 + 자료형 모두 비교
+        info.style.display = "none";  //숨기기
+        button.textContent = "더보기";
+      } else {
+        info.style.display = "block"; //보이기
+        button.textContent = "접기";
+      }
+    }   
+
+     //card클래스를 눌렀을때 해당 card가 가리키는 값으로 페이지 이동
+    document.querySelectorAll(".card").forEach(card => {
+
+      card.addEventListener("click", function (e) {
+      if (e.target.classList.contains("reveal-btn")) return; //class의 reveal-btn이 들어있으면 작동x
+
+      const url = card.getAttribute("data-url");
+      if (url) {
+        window.location.href = url;
+        }
+      });
+    });
+  
+
+    
+</script>
+</body>
+</html>

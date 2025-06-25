@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>청년 복지 정보</title>
+  <link rel="stylesheet" href="공통.css" />
+
+<style>
+
+/* =====  미디어 쿼리 ===== */
+
+/* 화면 너비가 1200px 이하일 때 적용 (작은 노트북, 큰 태블릿 가로 모드) */
+@media (max-width: 1200px) {
+  .wrapper {
+    gap: 24px; /* 콘텐츠 간격을 조금 줄임 */
+  }
+  .side-img.right {
+    display: none;
+  }
+}
+
+/* 화면 너비가 900px 이하일 때 적용 (일반 태블릿, 모바일) */
+@media (max-width: 900px) {
+  .wrapper {
+    flex-direction: column; /* 아이템을 세로로 쌓음 */
+    align-items: center; 
+    padding: 0 20px; 
+  }
+  .side-panel, .sections {
+    width: 100%;
+    max-width: 700px; 
+  }
+  .side-panel {
+    position: static; 
+    max-height: none; 
+    margin-top: 20px !important; 
+    order: 2; 
+  }
+  .sections {
+      order: 1; /* 왼쪽 패널보다 위에 표시 */
+  }
+  .sections .region h2 {
+    max-width: 100%; 
+  }
+}
+
+.card {
+  background: #ffffff;
+  opacity: 0;
+  transform: translateY(30px);
+  border-radius: 16px;
+  margin-bottom: 25px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+  padding: 24px 30px; 
+  border: 1px solid #f0e6db;
+  transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease;
+}
+
+.card h4, .card p {
+   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.card.show{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card.active {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
+  border: 2px solid 	#87cefa;
+}
+
+.card a {
+  color: #7c5c48;
+  text-decoration: underline;
+  text-decoration-color: #7c5c48;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.card a:hover {
+  color: #b47f55;
+  text-decoration-color: #b47f55;
+}
+
+/*카드 만료 시 적용시킬 스타일*/
+.card:not(.expired):not(.active):hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
+}
+
+.card.expired {
+  opacity: 0.6;
+  background-color: #f4f4f4;
+  pointer-events: none;
+  position: relative;
+}
+
+.card.expired *:not(a) { color: gray; }
+.card.expired a {
+  pointer-events: auto;
+  color: gray;
+  text-decoration-color: gray;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+.card.expired:hover { transform: none !important; box-shadow: none !important; }
+/*카드 만료 시 적용시킬 스타일 */
+
+.wrapper { margin-top: 0;
+gap: 48px; }
+.sections .region { padding: 0; margin: 0; max-width: 100%; width: 100%; }
+.sections .region h2 { width: 100%; max-width: 700px; margin-left: auto; margin-right: auto; margin-bottom: 20px; box-sizing: border-box; }
+.side-img img { transition: opacity 0.4s ease-in-out; }
+.sections .card { max-width: 700px; }
+
+#filter-buttons button { transition: all 0.3s ease; }
+#filter-buttons button.active {
+  background-color: #ff7043;
+  color: white;
+  font-weight: bold;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card .tag {
+  display: inline-block; background-color: #f5ece3; color: #a67c52;
+  padding: 4px 10px; border-radius: 12px; font-size: 0.85rem;
+  font-weight: bold; margin-bottom: 10px;
+}
+
+/* =====  왼쪽 사이드 패널 공통 스타일 ===== */
+.side-panel {
+  width: 200px;
+  position: sticky;
+  align-self: flex-start;
+  box-sizing: border-box;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.side-panel > div {
+  background-color: #fffdf7;
+  border: 1px solid #f5ece3;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.side-panel h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #f5ece3;
+  padding-bottom: 10px;
+  font-family: 'CookieRun-Regular', sans-serif;
+  color: #7c5c48;
+}
+
+/* ===== 좌측 목차  ===== */
+.toc-menu ul { list-style: none; padding: 0; margin: 0; }
+.toc-menu li a {
+  text-decoration: none; color: #7c5c48;
+  font-weight: bold; line-height: 2; transition: color 0.2s;
+}
+.toc-menu li a:hover { color: #ff7043; }
+
+/* ===== 좌측 정보 패널  ===== */
+.info-panel #current-region-title { font-size: 1.1rem; margin-bottom: 5px; }
+.info-panel #current-region-count {
+  font-size: 0.9rem; color: #555;
+  margin: 0; font-weight: bold;
+}
+
+/* =====  미니 캘린더  */
+.calendar-widget .calendar-header {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  font-family: 'CookieRun-Regular', sans-serif;
+}
+.calendar-widget .calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px; /* 날짜 간의 간격 */
+}
+/* 요일(일,월,화...)과 날짜(1,2,3...) 셀의 공통 스타일 */
+.calendar-widget .calendar-days span,
+.calendar-widget .date-cell {
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.calendar-widget .calendar-days span {
+  font-weight: bold;
+}
+.calendar-widget .date-cell {
+  border-radius: 50%; /* 동그란 모양 */
+  aspect-ratio: 1 / 1; /* 너비와 높이 비율을 1:1로 만들어 정원형 유지 */
+}
+.calendar-widget .today {
+  background-color: #f5ece3;
+}
+
+</style>
+
+</head>
+<body>
+
+  <nav>
+    <div class="nav-container">
+      <div class="logo">
+        <a href="home.html"><img src="곰두리_16.png" alt="로고" class="logo-img" /></a>
+      </div>
+      <div class="menu">
+        <a href="home.html">홈</a>
+        <a href="지역별 복지.html">지역별 복지</a>
+        <a href="청년창업.html">청년창업</a>
+        <a href="K-패스.html">K-패스</a>
+      </div>
+        <button class="hamburger-menu">
+        <span class="line"></span>
+        <span class="line"></span>
+        <span class="line"></span>
+        <span class="line"></span>
+      </button>
+    </div>
+  </nav>
+
+  <header class = "had">
+    <h1>💡 2025년 6월 신청 가능한 청년복지 정보</h1>
+    <p>서울 · 경기 · 강원 지역 중심</p>
+  </header>
+  
+  <div id="filter-buttons">
+    <button id="filter-all">전체보기</button>
+    <button id="filter-seoul">서울</button>
+    <button id="filter-gg">경기</button>
+    <button id="filter-kw">강원</button>
+  </div>
+
+  <div class="wrapper">
+    <div class="side-panel">
+        <div class="toc-menu">
+            <h4>바로가기</h4>
+            <ul>
+                <li><a href="#seoul">서울특별시</a></li>
+                <li><a href="#gyeonggi">경기도</a></li>
+                <li><a href="#gangwon">강원도</a></li>
+            </ul>
+        </div>
+        <div class="info-panel">
+            <h4 id="current-region-title">전체</h4>
+            <p id="current-region-count">모든 혜택을 보고 있어요</p>
+        </div>
+        <div class="calendar-widget">
+            <div class="calendar-header">
+                <span id="cal-month-year">2025년 6월</span>
+            </div>
+            <div class="calendar-grid calendar-days">
+                <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+            </div>
+            <div class="calendar-grid calendar-dates" id="cal-dates">
+                <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div>
+                <div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div>
+                <div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div>
+                <div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div>
+                <div>29</div><div>30</div>
+            </div>
+        </div>
+        </div>
+    <div class="sections">
+      <section class="region" id="seoul">
+        <h2>서울특별시</h2>
+        <div class="card">
+          <h3><a href="https://youth.seoul.go.kr/content.do?key=2310100046" target="_blank">서울 청년 월세 지원사업</a></h3>
+          <p class="tag">신청기간: ~6월 17일</p>
+          <h4>대상: 만 19~34세, 중위소득 150% 이하, 독립 거주자</h4>
+          <p>월 최대 20만원, 10개월 지원</p>
+          <p class="note">※ 졸업 전 대학생은 제외되는 경우 많음</p>
+        </div>
+        <div class="card">
+          <h3><a href="https://news.seoul.go.kr/traffic/archives/511804" target="_blank">기후 동맹 카드</a></h3>
+          <p class="tag">신청기간: 상시</p>
+          <h4>대상: 만 19세~39세</h4>
+          <p>단기권 & 30일권</p>
+          <p class="note">신분당선, 타 시·도 면허버스, 광역버스 등 제외※ </p>
+        </div>
+        <div class="card">
+          <h3><a href="https://youth.seoul.go.kr/content.do?key=2310100069" target="_blank">희망두배 청년통장</a></h3>
+          <p class="tag">신청기간: 6월 9일 ~ 6월 20일 18시</p>
+          <h4>대상: 만 18~34세 서울시 거주 청년</h4>
+          <p>저축액의 100%를 추가로 적립</p>
+          <p class="note">※ 1년간 3개월 이상 근로 or 현재3개월 이상 근로중, 근로소득 세전 255만원 이하</p>
+        </div>
+        <div class="card">
+          <h3><a href="https://youth.seoul.go.kr/content.do?key=2310100069" target="_blank">서울청년수당</a></h3>
+          <p class="tag">신청기간: 6월 10일 ~ 6월 12일 16시</p>
+          <h4>대상: 만 19~34세 주민등록상 서울시에 거주하는 최종학력 졸업 후 미취업 상태인 청년</h4>
+          <p>활동지원금(월 50만원 최대 6개월)을 지급</p>
+          <p class="note">※ 중위소득 150%이하, 재학생 및 휴학생 신청불가</p>
+        </div>
+      </section>
+
+      <section class="region" id="gyeonggi">
+        <h2>경기도</h2>
+        <div class="card">
+          <h3><a href="https://www.gg.go.kr/contents/contents.do?ciIdx=1150" target="_blank">경기청년기본소득</a></h3>
+          <p class="tag">신청기간: 분기별 접수 (6월 중)</p>
+          <h4>대상: 경기도 3년 이상 거주 만 24세</h4>
+          <p>분기당 25만원, 연 100만원 지역화폐 지급</p>
+          <p class="note">※ 24세 단일 연령 대상이라 자주 놓침</p>
+        </div>
+        <div class="card">
+          <h3><a href="https://www.jobaba.net" target="_blank">경기 청년 면접수당</a></h3>
+          <p class="tag">신청기간: 상시</p>
+          <h4>대상: 만 18~34세 취업 준비 중 청년</h4>
+          <p>면접 1회당 3만원, 최대 3회 지급</p>
+          <p class="note">※ 고용보험 가입 여부 기준 있음</p>
+        </div>
+        <div class="card">
+          <h3><a href="https://apply.jobaba.net/special/GGtestfees/main.do#!" target="_blank">경기 청년 역량강화 기회지원사업</a></h3>
+          <p class="tag">신청기간: 5월 ~ 11월 30일</p>
+          <h4>대상: 만 18~34세 취업 준비 중 청년</h4>
+          <p>1인당 최대 30만원 지원(신청횟수제한 x)</p>
+          <p class="note">※ 시군별 상이, 예산 소진 시 종료 </p>
+        </div>
+      </section>
+
+      <section class="region" id="gangwon">
+        <h2>강원도</h2>
+        <div class="card">
+          <h3><a href="https://gwjob.gwd.go.kr" target="_blank">청년 디딤돌 2배 적금</a></h3>
+          <p class="tag">신청기간: 2025년 상시 접수</p>
+          <h4>대상: 도내 중소기업 재직 청년</h4>
+          <p>청년 10만원 적립 시 기업+지자체 10만원 추가 적립 (총 720만원)</p>
+          <p class="note">※ 3년 만기 적금, 소득 요건 있음</p>
+        </div>
+        <div class="card">
+          <h3><a href="https://www.bokjiro.go.kr/ssis-tbu/index.do" target="_blank">청년 월세 한시 특별지원 (2차)</a></h3>
+          <p class="tag">마감</p>
+          <h4>대상: 만 19~34세 무주택 청년, 독립 거주자</h4>
+          <p>월 최대 20만원, 최대 24개월 지원</p>
+          <p class="note">※ 주택청약통장 필요, 소득·재산 기준 충족 필수, 3차모집가능성 있음</p>
+        </div>
+
+            <p style="text-align: center; font-weight: bold; margin-top: 30px; font-size: 1rem; color: #555;">
+           ❗❗현재 강원도 단위의 청년 지원 정책은 대부분 마감되었습니다.<br>새로운 소식은 각 시·군청 홈페이지를 확인해주세요!
+        </p>
+      </section>
+    </div>
+
+    <div class="side-img right">
+      <img src="seoul.png" alt="오른쪽 지역 이미지" id="right-side-img"/>
+    </div>
+  </div>
+
+  <footer>
+    Copyright © 2025. All rights reserved.
+  </footer>
+
+<script src = "공통.js"></script>
+<script>
+    // =====  전역 변수 =====
+    const regionImages = {
+      "서울특별시": "곰두리2.png",
+      "경기도": "곰두리4.png",
+      "강원도": "곰두리5.png",
+      "전체": "곰두리_16.png" 
+    };
+
+    // ===== 사이드 패널과 이미지를 업데이트하는 전용 함수 =====
+    function updateSidePanel(regionElement) {
+      const rightImage = document.getElementById('right-side-img');
+      const infoTitle = document.getElementById('current-region-title');
+      const infoCount = document.getElementById('current-region-count');
+
+      let regionName, cardCount, newImageSrc;
+
+      if (regionElement) { // 특정 지역 선택
+        regionName = regionElement.querySelector('h2').textContent;
+        cardCount = regionElement.querySelectorAll('.card').length;
+        newImageSrc = regionImages[regionName];
+        infoTitle.textContent = regionName;
+        infoCount.textContent = `${cardCount}개의 혜택을 보고 있어요`;
+      } else { // 전체보기 
+        regionName = "전체";
+        cardCount = document.querySelectorAll('.card').length;
+        newImageSrc = regionImages["전체"];
+        infoTitle.textContent = regionName;
+        infoCount.textContent = `총 ${cardCount}개의 혜택을 보고 있어요`;
+      }
+      
+      
+      if (rightImage && newImageSrc && !rightImage.src.includes(newImageSrc)) {
+        rightImage.style.opacity = 0;
+        setTimeout(() => {
+          rightImage.src = newImageSrc;
+          rightImage.style.opacity = 1;
+        }, 400);
+      }
+    }
+
+    window.onload = function () {
+      // 헤더 애니메이션
+      const had = document.querySelector(".had");
+      had.style.opacity = 0;
+      setTimeout(() => { had.style.transition = "opacity 2.5s"; had.style.opacity = 1; }, 100);
+
+      // 초기 이미지 로딩
+      updateSidePanel(document.querySelector('section.region'));
+      
+      // 사이드 패널 수직 위치 동적 조정
+      try {
+        const alignmentTarget = document.querySelector('#filter-buttons');
+        const sidePanels = document.querySelectorAll('.side-panel, .side-img');
+        if (alignmentTarget && sidePanels.length > 0) {
+          const topPosition = alignmentTarget.getBoundingClientRect().top;
+          const navHeight = document.querySelector('nav').offsetHeight;
+          const stickyTopPosition = topPosition - navHeight - 15;
+          sidePanels.forEach(panel => {
+            const panelTop = panel.getBoundingClientRect().top;
+            const offset = topPosition - panelTop;
+            panel.style.marginTop = offset + 'px';
+            panel.style.top = stickyTopPosition + 'px';
+          });
+        }
+      } catch(e) { console.error("사이드 패널 위치 조정 중 오류:", e); }
+    };
+
+    const cardShowObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add("show"); }
+         else { entry.target.classList.remove("show"); }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.card').forEach(card => cardShowObserver.observe(card));
+
+    // =====  스크롤 시 updateSidePanel 함수 호출 =====
+    const infoPanelObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          updateSidePanel(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('section.region').forEach(section => infoPanelObserver.observe(section));
+
+
+    // =====  필터 버튼 클릭 시 updateSidePanel 함수 호출 =====
+    const filterButtons = document.querySelectorAll('#filter-buttons button');
+    filterButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        const clickedButton = e.currentTarget;
+        clickedButton.classList.add('active');
+        
+        const filterId = clickedButton.id;
+        let visibleSection = null;
+
+        document.querySelectorAll('section.region').forEach(sec => {
+            let show = false;
+            if (filterId === 'filter-all') {
+                show = true;
+                // '전체보기'일 때는 특정 섹션을 지정하지 않음
+            } else if (filterId === 'filter-seoul' && sec.id === 'seoul') {
+                show = true;
+                visibleSection = sec;
+            } else if (filterId === 'filter-gg' && sec.id === 'gyeonggi') {
+                show = true;
+                visibleSection = sec;
+            } else if (filterId === 'filter-kw' && sec.id === 'gangwon') {
+                show = true;
+                visibleSection = sec;
+            }
+            sec.style.display = show ? "block" : "none";
+        });
+
+        // 필터링 후, 보이는 섹션을 기준으로 사이드 패널 업데이트
+        updateSidePanel(visibleSection);
+      });
+    });
+
+
+    // 만료 카드 처리
+    document.querySelectorAll('.card').forEach(card => {
+      const tag = card.querySelector('.tag');
+      if (!tag) return;
+      const dateText = tag.textContent;
+      const match = dateText.match(/~\s*(\d+)월\s*(\d+)일/);
+      if (match) {
+        const month = parseInt(match[1]);
+        const day = parseInt(match[2]);
+        const now = new Date();
+        const endDate = new Date(now.getFullYear(), month - 1, day + 1);
+        if (now > endDate) { card.classList.add('expired'); }
+      }
+    });
+
+    // 카드 클릭 활성화
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (card.classList.contains('expired') || e.target.tagName.toLowerCase() === 'a') return;
+        const isActive = card.classList.contains('active');
+        document.querySelectorAll('.card.active').forEach(c => c.classList.remove('active'));
+        if (!isActive) {
+          card.classList.add('active');
+        }
+      });
+    });
+
+  </script>
+</body>
+</html>
